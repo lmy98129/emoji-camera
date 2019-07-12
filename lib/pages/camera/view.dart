@@ -28,19 +28,24 @@ class _MainPageState extends State<_MainPage> with WidgetsBindingObserver{
     SystemChrome.setEnabledSystemUIOverlays([]);
     Provider.of<CameraModel>(context, listen: false).initCamera();
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final cameraModel = Provider.of<CameraModel>(context, listen: false);
 
-    if (state == AppLifecycleState.inactive
-    || state == AppLifecycleState.paused
-    || state == AppLifecycleState.suspending) {
+    if (state == AppLifecycleState.inactive) {
       cameraModel.disposeCamera();
     } else if (state == AppLifecycleState.resumed) {
       cameraModel.initCamera();
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -86,7 +91,7 @@ class _MainPageState extends State<_MainPage> with WidgetsBindingObserver{
             child: Container(
               width: screenW,
               decoration: BoxDecoration(
-                color: Color.fromRGBO(0, 0, 0, 0.3),
+                color: Color.fromRGBO(0, 0, 0, 0.5),
               ),
               padding: EdgeInsets.symmetric(vertical: 55, horizontal: 20),
               child: Row(
@@ -108,7 +113,7 @@ class _MainPageState extends State<_MainPage> with WidgetsBindingObserver{
               child: Container(
                   width: screenW,
                   decoration: BoxDecoration(
-                    color: Color.fromRGBO(0, 0, 0, 0.3),
+                    color: Color.fromRGBO(0, 0, 0, 0.5),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                   child: Row(

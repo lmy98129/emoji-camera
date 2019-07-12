@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'components/album_btn.dart';
-import 'components/delete_btn.dart';
+import 'components/bottom_btn.dart';
 import 'package:flutter_demo/utils/route.dart';
 import 'dart:math' as math;
 
@@ -68,8 +68,16 @@ class _MainPageState extends State<_MainPage> {
     await cameraModel.getFileList();
     if (currentPage > 0) {
       previewModel.onPageChanged(currentPage - 1);
+    } else {
+      previewModel.onPageChanged(0);
     }
   }
+
+  void _handleEmoji() {}
+
+  void _handleCrop() {}
+
+  void _handleStyleMigrate() {}
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +88,6 @@ class _MainPageState extends State<_MainPage> {
 
     return Stack(
       children: <Widget>[
-
         Container(
           child: PhotoViewGallery.builder(
             scrollPhysics: BouncingScrollPhysics(),
@@ -100,26 +107,39 @@ class _MainPageState extends State<_MainPage> {
             ),
           ),
         ),
-
         Positioned(
-          bottom: 0,
-          child: Container(
-            width: screenW,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.7),
-            ),
-             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-             child: Row(
-               mainAxisAlignment: MainAxisAlignment.spaceAround,
-               children: <Widget>[
-                  DeleteBtn(
-                    onPressed: _handleDelete,
-                  )
-                ],
-             )
-          )
-        )
-
+            bottom: 0,
+            child: Container(
+                width: screenW,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.7),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    BottomBtn(
+                      icon: Icon(Icons.sentiment_very_satisfied),
+                      text: Text("Emoji"),
+                      onPressed: _handleEmoji,
+                    ),
+                    BottomBtn(
+                      icon: Icon(Icons.compare),
+                      text: Text("AI抠图"),
+                      onPressed: _handleCrop,
+                    ),
+//                    BottomBtn(
+//                      icon: Icon(Icons.tune ),
+//                      text: Text("风格迁移"),
+//                      onPressed: _handleStyleMigrate,
+//                    ),
+                    BottomBtn(
+                      icon: Icon(Icons.close),
+                      text: Text("删除"),
+                      onPressed: _handleDelete,
+                    ),
+                  ],
+                )))
       ],
     );
   }

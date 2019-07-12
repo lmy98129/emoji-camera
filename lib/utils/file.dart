@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 
-final String ALBUM_PATH = "pages.album";
+final String ALBUM_PATH = "album";
 
 // 是否创建了album目录
 Future<String> dirCheck(String path) async {
   Directory dir = Directory(
-      join((await getExternalStorageDirectory()).path, path)
+      join((await getApplicationDocumentsDirectory()).path, path)
   );
 
   if (! (await dir.exists())) {

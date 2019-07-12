@@ -44,6 +44,7 @@ class CameraModel with ChangeNotifier {
 
   void disposeCamera() {
     _controller.dispose();
+    notifyListeners();
   }
 
   void switchFrontCamera() {

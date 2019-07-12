@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
-class DeleteBtn extends StatelessWidget {
+class BottomBtn extends StatelessWidget {
   VoidCallback _onPressed;
+  Icon _icon;
+  Text _text;
 
-  DeleteBtn({
-    VoidCallback onPressed
-  }):_onPressed = onPressed;
+  BottomBtn({
+    VoidCallback onPressed,
+    Icon icon,
+    Text text,
+  }):_onPressed = onPressed,
+    _icon = icon,
+    _text = text;
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +20,7 @@ class DeleteBtn extends StatelessWidget {
       padding: EdgeInsets.all(10.0),
       onPressed: _onPressed,
       child: Column(
-        children: <Widget>[
-          Icon(Icons.delete),
-          Text('删除'),
-        ],
+        children: <Widget>[ _icon, _text ],
       ),
     );
   }
