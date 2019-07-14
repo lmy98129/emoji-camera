@@ -31,3 +31,12 @@ Future<List<FileSystemEntity>> getFileList() async {
 
   return files;
 }
+
+Map<String, String> getPathNameSuffix(path) {
+  String name = path.substring(path.lastIndexOf("/") + 1, path.length);
+  String suffix = name.substring(name.lastIndexOf(".") + 1, name.length);
+  return {
+    "name": name,
+    "suffix": suffix,
+  };
+}

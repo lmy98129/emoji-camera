@@ -51,17 +51,22 @@ class CameraModel with ChangeNotifier {
     _isFrontCamera = !_isFrontCamera;
   }
 
+  void insertPhoto(index, newPath) {
+    _photos.insert(index, newPath);
+    notifyListeners();
+  }
+
   void takePhoto(detail) async {
     var dir = await fileUtil.dirCheck(fileUtil.ALBUM_PATH);
-    var fileName = '${DateTime.now()}.jpeg';
+    var cameraTag = _isFrontCamera ? "FRONT" : "BACK";
+    var fileName = '${cameraTag}_${DateTime.now()}.jpeg';
 
     if (Platform.isIOS) {
-      fileName = '${DateTime.now()}.png';
+      fileName = '${cameraTag}_${DateTime.now()}.png';
     }
 
     var path = join(dir, fileName);
-
-
+    
     await _controller.takePicture(path);
 
 //    TODO: 优化前摄镜像图像处理
@@ -90,8 +95,7 @@ class CameraModel with ChangeNotifier {
 //
 //    }
 //
-    _photos.insert(0, path);
-    notifyListeners();
+    insertPhoto(0, path);
   }
 
   void switchCamera() async {
