@@ -66,7 +66,7 @@ class CameraModel with ChangeNotifier {
     }
 
     var path = join(dir, fileName);
-    
+
     await _controller.takePicture(path);
 
 //    TODO: 优化前摄镜像图像处理

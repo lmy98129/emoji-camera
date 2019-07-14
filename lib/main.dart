@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       child: Consumer2<CameraModel, PreviewModel>(
         builder: (context, _, __, ___) {
           return MaterialApp(
-            title: 'Emo-Cam',
+            title: 'Emo Cam',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
                 primarySwatch: Colors.amber,

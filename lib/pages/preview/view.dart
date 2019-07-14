@@ -92,7 +92,8 @@ class _MainPageState extends State<_MainPage> {
 
     FormData formData = FormData.from({
       'upload': UploadFileInfo(File(path), name,
-      contentType: ContentType.parse("image/$suffix"))
+      contentType: ContentType.parse("image/$suffix")),
+      'is_front': name.indexOf("FRONT") >= 0 ? true : name.indexOf("BACK") >= 0 ? false : true,
     });
     
     try {
@@ -103,7 +104,7 @@ class _MainPageState extends State<_MainPage> {
         if (!res['success']) {
           showToast(res['res'], context);
         } else {
-          showToast("提示：检测人脸成功", context);
+          showToast("检测人脸成功，图片生成中", context);
           print(res['res']);
           String imgPath = res['res']['img_path'];
 
