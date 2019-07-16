@@ -1,21 +1,20 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 
 import 'package:flutter_demo/utils/route.dart';
-import 'package:flutter_demo/utils/toast.dart';
-import 'package:flutter_demo/utils/file.dart';
 import 'package:flutter_demo/models/camera.dart';
 import 'package:flutter_demo/models/preview.dart';
 import 'components/album_btn.dart';
 import 'components/bottom_btn.dart';
+import 'components/matting_handler.dart';
+import 'components/emoji_handler.dart';
+import 'components/more_btn.dart';
 
 class buildView extends StatelessWidget {
   @override
@@ -25,6 +24,7 @@ class buildView extends StatelessWidget {
 
     var currentPage = previewModel.currentPage + 1;
 
+    // WillPopScope是路由跳转中间件
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
@@ -53,7 +53,6 @@ class _MainPageState extends State<_MainPage> {
   void deactivate() {
     final previewModel = Provider.of<PreviewModel>(context);
     previewModel.resetPage();
-    // 隐藏状态栏
     super.deactivate();
   }
 
@@ -64,70 +63,17 @@ class _MainPageState extends State<_MainPage> {
     super.initState();
   }
 
-  void _handleDelete() async {
-    final cameraModel = Provider.of<CameraModel>(context);
-    final previewModel = Provider.of<PreviewModel>(context);
-    int currentPage = previewModel.currentPage;
-
-    String currentPath = cameraModel.photos[currentPage];
-    await File(currentPath).delete();
-    await cameraModel.getFileList();
-    if (currentPage > 0) {
-      previewModel.onPageChanged(currentPage - 1);
-    } else {
-      previewModel.onPageChanged(0);
-    }
+  void _handleEmoji(context) async {
+    emojiHandler(context);
   }
 
-  void _handleEmoji(BuildContext context) async {
-    final progress = ProgressHUD.of(context);
-    progress.showWithText("照片换脸中");
-
-    final cameraModel = Provider.of<CameraModel>(context);
-    final previewModel = Provider.of<PreviewModel>(context);
-    String path = cameraModel.photos[previewModel.currentPage];
-    Map<String, String> pathMap = getPathNameSuffix(path);
-    String name = pathMap['name'];
-    String suffix = pathMap['suffix'];
-
-    FormData formData = FormData.from({
-      'upload': UploadFileInfo(File(path), name,
-      contentType: ContentType.parse("image/$suffix")),
-      'is_front': name.indexOf("FRONT") >= 0 ? true : name.indexOf("BACK") >= 0 ? false : true,
-    });
-    
+  void _handleAIMatting(context) async {
     try {
-      var response = await Dio().post<String>("http://47.93.202.244:8081/emoji", data: formData);
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> res = jsonDecode(response.data);
-        if (!res['success']) {
-          showToast(res['res'], context);
-        } else {
-          showToast("检测人脸成功，图片生成中", context);
-          print(res['res']);
-          String imgPath = res['res']['img_path'];
-
-          String newPath = "${await dirCheck(ALBUM_PATH)}/emoji_switched_${DateTime.now()}_$name";
-          String uri = "http://47.93.202.244:8081$imgPath";
-          print(uri);
-          var resp = await Dio().download(uri, newPath);
-          print("${resp.statusCode}, ${resp.statusMessage}");
-          print(previewModel.currentPage);
-          cameraModel.insertPhoto(previewModel.currentPage, newPath);
-          print(cameraModel.photos);
-
-        }
-      }
-    } on DioError catch (error) {
-      showToast("提示：请求出错", context);
-    } finally {
-      progress.dismiss();
+      mattingHandler(context);
+    } on PlatformException catch (e) {
+      print(e.message);
     }
-
   }
-
-  void _handleCrop() {}
 
   void _handleStyleMigrate() {}
 
@@ -143,6 +89,7 @@ class _MainPageState extends State<_MainPage> {
       child: Builder(
         builder: (context) => Stack(
           children: <Widget>[
+
             Container(
               child: PhotoViewGallery.builder(
                 scrollPhysics: BouncingScrollPhysics(),
@@ -162,6 +109,7 @@ class _MainPageState extends State<_MainPage> {
                 ),
               ),
             ),
+
             Positioned(
                 bottom: 0,
                 child: Container(
@@ -181,22 +129,19 @@ class _MainPageState extends State<_MainPage> {
                         BottomBtn(
                           icon: Icon(Icons.compare),
                           text: Text("AI抠图"),
-                          onPressed: _handleCrop,
+                          onPressed: () { _handleAIMatting(context); },
                         ),
-//                    BottomBtn(
-//                      icon: Icon(Icons.tune ),
-//                      text: Text("风格迁移"),
-//                      onPressed: _handleStyleMigrate,
-//                    ),
-                        BottomBtn(
-                          icon: Icon(Icons.close),
-                          text: Text("删除"),
-                          onPressed: _handleDelete,
-                        ),
+//                        BottomBtn(
+//                          icon: Icon(Icons.tune ),
+//                          text: Text("风格迁移"),
+//                          onPressed: _handleStyleMigrate,
+//                        ),
+                        MoreBtn(),
                       ],
                     )
                 )
             )
+
           ],
         ),
       ),

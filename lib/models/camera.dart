@@ -3,7 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:camera/camera.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter_demo/utils/file.dart' as fileUtil;
+import 'package:flutter_demo/pages/preview/components/emoji_handler.dart' show emojiHandler;
+
+final IS_AUTO_FRONT_CAMERA = "AUTO_FRONT_CAMERA";
+final IS_AUTO_EMOJI_SWITCH_FACE = "AUTO_EMOJI_SWITCH_FACE";
+final DEFAULT_EMOJI_MODE = "DEFAULT_EMOJI_MODE";
+final EMOJI_MODE_CIRCLE = "circle";
+final EMOJI_MODE_COVER = "cover";
 
 class CameraModel with ChangeNotifier {
   List<CameraDescription> _cameras = List<CameraDescription>();
@@ -29,15 +38,16 @@ class CameraModel with ChangeNotifier {
     List<FileSystemEntity> files = await fileUtil.getFileList();
     _photos.clear();
     files.forEach((entity) {
-      if (Platform.isIOS) {
-        if (entity.path.endsWith('.png')) {
-          _photos.add(entity.path);
-        }
-      } else {
-        if (entity.path.endsWith('.jpeg')) {
-          _photos.add(entity.path);
-        }
-      }
+//      if (Platform.isIOS) {
+//        if (entity.path.endsWith('.png')) {
+//          _photos.add(entity.path);
+//        }
+//      } else {
+//        if (entity.path.endsWith('.jpeg')) {
+//          _photos.add(entity.path);
+//        }
+//      }
+      _photos.add(entity.path);
     });
     notifyListeners();
   }
@@ -51,12 +61,16 @@ class CameraModel with ChangeNotifier {
     _isFrontCamera = !_isFrontCamera;
   }
 
+  void setFrontCamera(bool isFrontCamera) {
+    _isFrontCamera = isFrontCamera;
+  }
+
   void insertPhoto(index, newPath) {
     _photos.insert(index, newPath);
     notifyListeners();
   }
 
-  void takePhoto(detail) async {
+  void takePhoto(detail, context) async {
     var dir = await fileUtil.dirCheck(fileUtil.ALBUM_PATH);
     var cameraTag = _isFrontCamera ? "FRONT" : "BACK";
     var fileName = '${cameraTag}_${DateTime.now()}.jpeg';
@@ -69,7 +83,7 @@ class CameraModel with ChangeNotifier {
 
     await _controller.takePicture(path);
 
-//    TODO: 优化前摄镜像图像处理
+//    // 优化前摄镜像图像处理
 //    if (_isFrontCamera) {
 //      Im.Image im;
 //      List<int> bytes = await File(path).readAsBytes();
@@ -96,6 +110,12 @@ class CameraModel with ChangeNotifier {
 //    }
 //
     insertPhoto(0, path);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (prefs.getBool(IS_AUTO_EMOJI_SWITCH_FACE)) {
+      emojiHandler(context);
+    }
   }
 
   void switchCamera() async {

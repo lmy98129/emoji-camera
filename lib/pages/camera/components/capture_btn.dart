@@ -26,10 +26,10 @@ class _CaptureBtnState extends State<CaptureBtn> {
     _switchCapBtnActive();
   }
 
-  void _handleTapUp(detail) {
+  void _handleTapUp(detail, context) {
     _switchCapBtnActive();
     Future.delayed(Duration(milliseconds: 400), () {
-      Provider.of<CameraModel>(context).takePhoto(detail);
+      Provider.of<CameraModel>(context).takePhoto(detail, context);
     });
   }
 
@@ -46,7 +46,7 @@ class _CaptureBtnState extends State<CaptureBtn> {
         child: Center(
           child: GestureDetector(
             onTapDown: _handleTapDown,
-            onTapUp: _handleTapUp,
+            onTapUp: (detail) { _handleTapUp(detail, context); } ,
             onLongPressUp: _handleLongPressUp,
             child: AnimatedContainer(
               duration: Duration(milliseconds: 100),

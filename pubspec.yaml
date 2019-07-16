@@ -31,8 +31,9 @@ dependencies:
   dio: ^2.1.13
   toast: ^0.1.4
   flutter_progress_hud: ^1.0.2
-  http:
-
+  multi_image_picker: ^4.3.5
+  share_extend: ^1.0.9
+  shared_preferences: ^0.5.3+3
 
 dev_dependencies:
   flutter_test:
